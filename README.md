@@ -2,4 +2,4 @@
 
 ## To Run:
 1. In terminal: 'go run cmd/main.go'
-2. In a separate terminal window: 'curl localhost:8080'
+2. In a separate terminal window: 'curl localhost:8080' 
