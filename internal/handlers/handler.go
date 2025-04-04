@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"slices"
+	"strconv"
 
 	"leo.com/m/internal/models"
 )
@@ -21,30 +23,59 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
 // (i)
 // curl localhost:8080/tasks
 func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Get Tasks")
+	fmt.Fprintln(w, "To-Do List:")
+	fmt.Fprintln(w, "--------------")
+
+	for i := 0; i < len(tasks); i++ {
+		if tasks[i].Completed {
+			fmt.Fprintf(w, "[x] %s\n", tasks[i].Title)
+		} else {
+			fmt.Fprintf(w, "[ ] %s\n", tasks[i].Title)
+		}
+	}
 }
 
 // (ii)
 // curl localhost:8080/tasks/{id}
 func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Fprintf(w, "Return task with ID: %s", id)
+
+	i, err := strconv.Atoi(id)
+	i -= 1
+	if err != nil || i < 0 || i >= len(tasks) {
+		fmt.Fprintf(w, "Invalid task ID: %s", id)
+	} else {
+		fmt.Fprintf(w, "Task with ID %s:\n", id)
+		fmt.Fprintf(w, "%s", tasks[i].Title)
+	}
 }
 
 // (iii)
 // curl -X POST localhost:8080/addTask/{title}
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.PathValue("title")
-	newTask := models.Task{ID: len(tasks) + 1, Title: title, Completed: false}
-	tasks = append(tasks, newTask)
-	fmt.Fprintf(w, "Added task: %s", title)
+	tasks = append(tasks, models.Task{
+		ID:        len(tasks) + 1,
+		Title:     title,
+		Completed: false,
+	})
+
+	fmt.Fprintf(w, "Added task: %s\n", title)
 }
 
 // (iv)
 // curl -X PUT localhost:8080/tasks/{id}
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Fprintf(w, "Updated task with ID: %s", id)
+
+	i, err := strconv.Atoi(id)
+	i -= 1
+	if err != nil || i < 0 || i >= len(tasks) {
+		fmt.Fprintf(w, "Invalid task ID: %s", id)
+	} else {
+		tasks[i].Completed = !tasks[i].Completed
+		fmt.Fprintf(w, "Updated task with ID: %s", id)
+	}
 
 }
 
@@ -52,5 +83,17 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 // curl -X DELETE localhost:8080/tasks/{id}
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Fprintf(w, "Deleted task with ID: %s", id)
+
+	i, err := strconv.Atoi(id)
+	i -= 1
+	if len(tasks) == 0 {
+		fmt.Fprintf(w, "No tasks to delete")
+	} else if err != nil || i < 0 || i >= len(tasks) {
+		fmt.Fprintf(w, "Invalid task ID: %s", id)
+	} else {
+		// deletes a range of elements from the slice (which is why it needs two arguments)
+		tasks = slices.Delete(tasks, i, i+1)
+		fmt.Fprintf(w, "Deleted task with ID: %s", id)
+	}
+
 }
