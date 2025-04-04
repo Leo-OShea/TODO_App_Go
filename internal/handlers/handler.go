@@ -16,13 +16,13 @@ var tasks = []models.Task{
 
 // curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Hello, World!")
 }
 
 // (i)
 // curl localhost:8080/tasks
 func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "To-Do List:")
 	fmt.Fprintln(w, "--------------")
 
@@ -39,11 +39,13 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 // (ii)
 // curl localhost:8080/tasks/{id}
 func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
+	
 	id := r.PathValue("id")
 
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if err != nil || i < 0 || i >= len(tasks) {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		fmt.Fprintf(w, "Task with ID %s:\n", id)
@@ -55,14 +57,18 @@ func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 // curl -X POST localhost:8080/addTask/{title}
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.PathValue("title")
-
-	tasks = append(tasks, models.Task{
+	if title == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "Task title cannot be empty.")
+		return
+	} else {
+		tasks = append(tasks, models.Task{
 		ID:        len(tasks) + 1,
 		Title:     title,
 		Completed: false,
 	})
-
 	fmt.Fprintf(w, "Added task: %s\n", title)
+	}
 }
 
 // (iv)
@@ -73,6 +79,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if err != nil || i < 0 || i >= len(tasks) {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		tasks[i].Completed = !tasks[i].Completed
@@ -88,8 +95,10 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if len(tasks) == 0 {
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "No tasks to delete")
 	} else if err != nil || i < 0 || i >= len(tasks) {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		// deletes a range of elements from the slice (which is why it needs two arguments)
