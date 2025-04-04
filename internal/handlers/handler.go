@@ -27,10 +27,11 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "--------------")
 
 	for i := 0; i < len(tasks); i++ {
+		tmp := i + 1
 		if tasks[i].Completed {
-			fmt.Fprintf(w, "[x] %s\n", tasks[i].Title)
+			fmt.Fprintf(w, "[x] %d. %s\n", tmp, tasks[i].Title)
 		} else {
-			fmt.Fprintf(w, "[ ] %s\n", tasks[i].Title)
+			fmt.Fprintf(w, "[ ] %d. %s\n", tmp, tasks[i].Title)
 		}
 	}
 }
@@ -54,6 +55,7 @@ func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 // curl -X POST localhost:8080/addTask/{title}
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.PathValue("title")
+
 	tasks = append(tasks, models.Task{
 		ID:        len(tasks) + 1,
 		Title:     title,
@@ -76,7 +78,6 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		tasks[i].Completed = !tasks[i].Completed
 		fmt.Fprintf(w, "Updated task with ID: %s", id)
 	}
-
 }
 
 // (v)
@@ -95,5 +96,4 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		tasks = slices.Delete(tasks, i, i+1)
 		fmt.Fprintf(w, "Deleted task with ID: %s", id)
 	}
-
 }
