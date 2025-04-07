@@ -16,11 +16,12 @@ var tasks = []models.Task{
 
 // curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello, World!")
+	fmt.Fprintln(w, "Empty fields are not allowed.")
+	fmt.Fprintln(w, "Please refer to the provided endpoints.")
 }
 
 // (i)
-// curl localhost:8080/tasks
+// curl localhost:8080/todos
 func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "To-Do List:")
@@ -37,7 +38,7 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // (ii)
-// curl localhost:8080/tasks/{id}
+// curl localhost:8080/todos/{id}
 func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
@@ -54,9 +55,10 @@ func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // (iii)
-// curl -X POST localhost:8080/addTask/{title}
+// curl -X POST localhost:8080/todos/{title}
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.PathValue("title")
+
 	if title == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintln(w, "Task title cannot be empty.")
@@ -72,7 +74,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // (iv)
-// curl -X PUT localhost:8080/tasks/{id}
+// curl -X PUT localhost:8080/todos/{id}
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
@@ -88,7 +90,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // (v)
-// curl -X DELETE localhost:8080/tasks/{id}
+// curl -X DELETE localhost:8080/todos/{id}
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
