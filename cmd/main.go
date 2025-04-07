@@ -9,7 +9,18 @@ import (
 )
 
 func main() {
+	fmt.Println("--------------------------------")
 	fmt.Println("Todo List")
+	fmt.Println("--------------------------------")
+	fmt.Println("Server started at localhost:8080")
+	fmt.Println("--------------------------------")
+	fmt.Println("Available endpoints:")
+	fmt.Println("- GET /todos")
+	fmt.Println("- GET /todos/{id}")
+	fmt.Println("- POST /todos/{title}")
+	fmt.Println("- PUT /todos/{id}")
+	fmt.Println("- DELETE /todos/{id}")
+	fmt.Println("--------------------------------")
 
 	mux := http.NewServeMux()
 
@@ -18,33 +29,33 @@ func main() {
 		handlers.HelloHandler(w, r)
 	})
 
-	// GET /tasks
+	// GET /todos
 	// Return all tasks
-	mux.HandleFunc("GET /tasks", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /todos", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetTasksHandler(w, r)
 	})
 
-	// GET /tasks/{id}
+	// GET /todos/{id}
 	// Return specific task
-	mux.HandleFunc("GET /tasks/{id}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetSpecificTaskHandler(w, r)
 	})
 
-	// POST /tasks
+	// POST /todos/{title}
 	// Add a task
-	mux.HandleFunc("POST /addTask/{title}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /todos/{title}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AddTaskHandler(w, r)
 	})
 
-	// PUT /tasks/{id}
+	// PUT /todos/{id}
 	// Update a task as completed/uncompleted
-	mux.HandleFunc("PUT /tasks/{id}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("PUT /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.UpdateTaskHandler(w, r)
 	})
 
-	// DELETE /tasks/{id}
+	// DELETE /todos/{id}
 	// Delete a task
-	mux.HandleFunc("DELETE /tasks/{id}", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("DELETE /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.DeleteTaskHandler(w, r)
 	})
 

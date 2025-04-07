@@ -39,7 +39,7 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 // (ii)
 // curl localhost:8080/tasks/{id}
 func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
-	
+
 	id := r.PathValue("id")
 
 	i, err := strconv.Atoi(id)
@@ -63,11 +63,11 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		tasks = append(tasks, models.Task{
-		ID:        len(tasks) + 1,
-		Title:     title,
-		Completed: false,
-	})
-	fmt.Fprintf(w, "Added task: %s\n", title)
+			ID:        len(tasks) + 1,
+			Title:     title,
+			Completed: false,
+		})
+		fmt.Fprintf(w, "Added task: %s\n", title)
 	}
 }
 
