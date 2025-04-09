@@ -7,12 +7,10 @@ import (
 	"strconv"
 
 	"leo.com/m/internal/models"
+	"leo.com/m/internal/storer"
 )
 
-var tasks = []models.Task{
-	{ID: 1, Title: "Task 1", Completed: false},
-	{ID: 2, Title: "Task 2", Completed: false},
-}
+var tasks = storer.LoadTodos()
 
 // curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,12 +25,19 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "To-Do List:")
 	fmt.Fprintln(w, "--------------")
 
-	for i := 0; i < len(tasks); i++ {
-		tmp := i + 1
-		if tasks[i].Completed {
-			fmt.Fprintf(w, "[x] %d. %s\n", tmp, tasks[i].Title)
-		} else {
-			fmt.Fprintf(w, "[ ] %d. %s\n", tmp, tasks[i].Title)
+	tasks = storer.LoadTodos()
+
+	if len(tasks) == 0 {
+		fmt.Fprintf(w, "No tasks available.")
+	} else {
+		for i := 0; i < len(tasks); i++ {
+
+			tmp := i + 1
+			if tasks[i].Completed {
+				fmt.Fprintf(w, "[x] %d. %s\n", tmp, tasks[i].Title)
+			} else {
+				fmt.Fprintf(w, "[ ] %d. %s\n", tmp, tasks[i].Title)
+			}
 		}
 	}
 }
@@ -71,6 +76,8 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		fmt.Fprintf(w, "Added task: %s\n", title)
 	}
+
+	storer.SaveTodos(tasks)
 }
 
 // (iv)
@@ -87,6 +94,8 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		tasks[i].Completed = !tasks[i].Completed
 		fmt.Fprintf(w, "Updated task with ID: %s", id)
 	}
+
+	storer.SaveTodos(tasks)
 }
 
 // (v)
@@ -107,4 +116,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		tasks = slices.Delete(tasks, i, i+1)
 		fmt.Fprintf(w, "Deleted task with ID: %s", id)
 	}
+
+	storer.SaveTodos(tasks)
 }
