@@ -28,6 +28,7 @@ func SaveTodos(tasks []models.Task) {
 		fmt.Printf("Failed to write tasks to file: %v\n", err)
 		return
 	}
+
 }
 
 // loads tasks from todos.json
@@ -53,6 +54,8 @@ func LoadTodos() []models.Task {
 		fmt.Printf("File is empty")
 		return []models.Task{}
 	}
+
+	fmt.Printf("Loaded tasks")
 
 	return tasks
 }

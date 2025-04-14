@@ -14,6 +14,7 @@ var tasks = storer.LoadTodos()
 
 // curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Empty fields are not allowed.")
 	fmt.Fprintln(w, "Please refer to the provided endpoints.")
 }
