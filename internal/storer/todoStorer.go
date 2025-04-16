@@ -10,11 +10,11 @@ import (
 	"leo.com/m/internal/models"
 )
 
-const todosFile = "../internal/data/todos.json"
+const todosFile = "./internal/data/todos.json"
 
 // saves tasks to todos.json
 // converts slice to JSON
-func SaveTodos(tasks []models.Task) {
+func SaveTodos(todosFile string, tasks []models.Task) {
 
 	b, err := json.Marshal(tasks)
 	if err != nil {
@@ -33,7 +33,7 @@ func SaveTodos(tasks []models.Task) {
 
 // loads tasks from todos.json
 // returns a slice of tasks
-func LoadTodos() []models.Task {
+func LoadTodos(todosFile string) []models.Task {
 
 	// read the file
 	file, err := os.ReadFile(todosFile)
@@ -54,8 +54,6 @@ func LoadTodos() []models.Task {
 		fmt.Printf("File is empty")
 		return []models.Task{}
 	}
-
-	fmt.Printf("Loaded tasks")
 
 	return tasks
 }

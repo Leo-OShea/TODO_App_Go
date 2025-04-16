@@ -10,7 +10,9 @@ import (
 	"leo.com/m/internal/storer"
 )
 
-var tasks = storer.LoadTodos()
+const todosFile = "./internal/data/todos.json"
+
+var tasks = storer.LoadTodos(todosFile)
 
 // curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,15 +24,16 @@ func HelloHandler(w http.ResponseWriter, r *http.Request) {
 // (i)
 // curl localhost:8080/todos
 func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "To-Do List:")
-	fmt.Fprintln(w, "--------------")
 
-	tasks = storer.LoadTodos()
+	tasks = storer.LoadTodos(todosFile)
 
 	if len(tasks) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "No tasks available.")
 	} else {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "To-Do List:\n--------------")
+
 		for i := 0; i < len(tasks); i++ {
 
 			tmp := i + 1
@@ -78,7 +81,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Added task: %s\n", title)
 	}
 
-	storer.SaveTodos(tasks)
+	storer.SaveTodos(todosFile, tasks)
 }
 
 // (iv)
@@ -89,13 +92,15 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if err != nil || i < 0 || i >= len(tasks) {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
+		w.WriteHeader(http.StatusOK)
 		tasks[i].Completed = !tasks[i].Completed
 		fmt.Fprintf(w, "Updated task with ID: %s", id)
 	}
 
-	storer.SaveTodos(tasks)
+	storer.SaveTodos(todosFile, tasks)
 }
 
 // (v)
@@ -103,13 +108,15 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	// tasks = storer.LoadTodos()
+	tasks = storer.LoadTodos(todosFile)
 
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if len(tasks) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "No tasks to delete")
 	} else if err != nil || i < 0 || i >= len(tasks) {
+		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		// deletes a range of elements from the slice (which is why it needs two arguments)
@@ -117,5 +124,5 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Deleted task with ID: %s", id)
 	}
 
-	storer.SaveTodos(tasks)
+	storer.SaveTodos(todosFile, tasks)
 }

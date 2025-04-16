@@ -8,11 +8,15 @@ import (
 	"testing"
 
 	"leo.com/m/internal/handlers"
+	"leo.com/m/internal/storer"
 )
 
 // go test ./cmd
 
-// Test empty field
+const todosFile = "../internal/data/todos.json"
+
+var tasks = storer.LoadTodos(todosFile)
+
 func TestHelloHandler(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -29,7 +33,7 @@ func TestHelloHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status OK; got %v", rr.Code)
+		t.Errorf("Got unexpected status %v", rr.Code)
 	}
 
 	expected := "Empty fields are not allowed.\nPlease refer to the provided endpoints.\n"
@@ -48,22 +52,33 @@ func TestGetTasks(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetTasksHandler(w, r)
 	})
 
-	handler1.ServeHTTP(rr, req)
-	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status OK; got %v", rr.Code)
-	}
+	handler.ServeHTTP(rr, req)
 
-	expected := "To-Do List:\n--------------\nNo tasks available."
-	if !strings.Contains(rr.Body.String(), expected) {
-		t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+	if len(tasks) == 0 { // Empty todo list
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "No tasks available."
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	} else { // Non-empty todo list
+		if rr.Code != http.StatusOK {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "To-Do List:\n--------------"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
 	}
 }
 
-// Test get specific task when no tasks are available
 func TestGetSpecificTask(t *testing.T) {
 
 	mux := http.NewServeMux()
@@ -77,17 +92,95 @@ func TestGetSpecificTask(t *testing.T) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusBadRequest {
-		t.Errorf("Expected status Bad Request; got %v", rr.Code)
-	}
+	if len(tasks) == 0 { // Empty todo list
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
 
-	expected := "Invalid task ID: 1"
-	if !strings.Contains(rr.Body.String(), expected) {
-		t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		expected := "Invalid task ID: 1"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	} else { // Non-empty todo list
+		if rr.Code != http.StatusOK {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "Task with ID 1:\nTestTitle"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
 	}
 }
 
-// Test add task
+func TestUpdateTask(t *testing.T) {
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("PUT /todos/{id}", handlers.UpdateTaskHandler)
+
+	req, err := http.NewRequest("PUT", "/todos/1", nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if len(tasks) == 0 { // Empty todo list
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "Invalid task ID: 1"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	} else { // Non-empty todo list
+		if rr.Code != http.StatusOK {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "Updated task with ID: 1"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	}
+}
+
+func TestDeleteTask(t *testing.T) {
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("DELETE /todos/{id}", handlers.DeleteTaskHandler)
+
+	req, err := http.NewRequest("DELETE", "/todos/1", nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if len(tasks) == 0 { // Empty todo list
+		if rr.Code != http.StatusBadRequest {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "No tasks to delete"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	} else { // Non-empty todo list
+		if rr.Code != http.StatusOK {
+			t.Errorf("Got unexpected status %v", rr.Code)
+		}
+
+		expected := "Deleted task with ID: 1"
+		if !strings.Contains(rr.Body.String(), expected) {
+			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
+		}
+	}
+}
+
 func TestAddTask(t *testing.T) {
 
 	mux := http.NewServeMux()
@@ -101,60 +194,11 @@ func TestAddTask(t *testing.T) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status OK; got %v", rr.Code)
+		t.Errorf("Got unexpected status %v", rr.Code)
 	}
 
 	expected := "Added task: TestTitle\n"
 	if !strings.Contains(rr.Body.String(), expected) {
-		t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
-	}
-}
-
-// Test update task
-func TestUpdateTask(t *testing.T) {
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("PUT /todos/{id}", handlers.UpdateTaskHandler)
-
-	req, err := http.NewRequest("PUT", "/todos/1", nil)
-	if err != nil {
-		t.Fatalf("Could not create request: %v", err)
-	}
-
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	// this throws an error and I can't figure out why :/
-	// if rr.Code != http.StatusNotFound {
-	// 	t.Errorf("Expected status Not Found; got %v", rr.Code)
-	// }
-
-	expected := "Invalid task ID: 1"
-	alt := "Updated task with ID: 1"
-	if !strings.Contains(rr.Body.String(), expected) && !strings.Contains(rr.Body.String(), alt) {
-		t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
-	}
-}
-
-// Test delete task
-func TestDeleteTask(t *testing.T) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("DELETE /todos/{id}", handlers.DeleteTaskHandler)
-
-	req, err := http.NewRequest("DELETE", "/todos/1", nil)
-	if err != nil {
-		t.Fatalf("Could not create request: %v", err)
-	}
-
-	rr := httptest.NewRecorder()
-	mux.ServeHTTP(rr, req)
-	// this throws an error and I can't figure out why :/
-	// if rr.Code != http.StatusNotFound {
-	// 	t.Errorf("Expected status Not Found; got %v", rr.Code)
-	// }
-
-	expected := "Deleted task with ID: 1"
-	alt := "No tasks to delete"
-	if !strings.Contains(rr.Body.String(), expected) && !strings.Contains(rr.Body.String(), alt) {
 		t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
 	}
 }
