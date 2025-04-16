@@ -10,7 +10,7 @@ import (
 	"leo.com/m/internal/models"
 )
 
-const todosFile = "./internal/data/todos.json"
+const todosFile = "../internal/data/todos.json"
 
 // saves tasks to todos.json
 // converts slice to JSON

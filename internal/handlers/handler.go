@@ -89,7 +89,6 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if err != nil || i < 0 || i >= len(tasks) {
-		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		tasks[i].Completed = !tasks[i].Completed
@@ -104,13 +103,13 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
+	// tasks = storer.LoadTodos()
+
 	i, err := strconv.Atoi(id)
 	i -= 1
 	if len(tasks) == 0 {
-		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "No tasks to delete")
 	} else if err != nil || i < 0 || i >= len(tasks) {
-		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
 		// deletes a range of elements from the slice (which is why it needs two arguments)
