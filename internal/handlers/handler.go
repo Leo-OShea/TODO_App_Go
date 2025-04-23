@@ -14,15 +14,12 @@ const todosFile = "./internal/data/todos.json"
 
 var tasks = storer.LoadTodos(todosFile)
 
-// curl localhost:8080
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Empty fields are not allowed.")
 	fmt.Fprintln(w, "Please refer to the provided endpoints.")
 }
 
-// (i)
-// curl localhost:8080/todos
 func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 	tasks = storer.LoadTodos(todosFile)
@@ -46,8 +43,6 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// (ii)
-// curl localhost:8080/todos/{id}
 func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
@@ -63,8 +58,6 @@ func GetSpecificTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// (iii)
-// curl -X POST localhost:8080/todos/{title}
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.PathValue("title")
 
@@ -84,8 +77,6 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	storer.SaveTodos(todosFile, tasks)
 }
 
-// (iv)
-// curl -X PUT localhost:8080/todos/{id}
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
@@ -103,8 +94,6 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	storer.SaveTodos(todosFile, tasks)
 }
 
-// (v)
-// curl -X DELETE localhost:8080/todos/{id}
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
@@ -119,7 +108,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Invalid task ID: %s", id)
 	} else {
-		// deletes a range of elements from the slice (which is why it needs two arguments)
 		tasks = slices.Delete(tasks, i, i+1)
 		fmt.Fprintf(w, "Deleted task with ID: %s", id)
 	}

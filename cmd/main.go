@@ -15,46 +15,35 @@ func main() {
 	fmt.Println("Server started at localhost:8080")
 	fmt.Println("--------------------------------")
 	fmt.Println("Available endpoints:")
-	fmt.Println("- GET /todos")
-	fmt.Println("- GET /todos/{id}")
-	fmt.Println("- POST /todos/{title}")
-	fmt.Println("- PUT /todos/{id}")
-	fmt.Println("- DELETE /todos/{id}")
+	fmt.Println("- curl localhost:8080/todos")
+	fmt.Println("- curl localhost:8080/todos/{id}")
+	fmt.Println("- curl -X POST localhost:8080/todos/{title}")
+	fmt.Println("- curl -X PUT localhost:8080/todos/{id}")
+	fmt.Println("- curl -X DELETE localhost:8080/todos/{id}")
 	fmt.Println("--------------------------------")
 
 	mux := http.NewServeMux()
 
-	// Say hello!!
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HelloHandler(w, r)
 	})
 
-	// GET /todos
-	// Return all tasks
 	mux.HandleFunc("GET /todos", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetTasksHandler(w, r)
 	})
 
-	// GET /todos/{id}
-	// Return specific task
 	mux.HandleFunc("GET /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetSpecificTaskHandler(w, r)
 	})
 
-	// POST /todos/{title}
-	// Add a task
 	mux.HandleFunc("POST /todos/{title}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AddTaskHandler(w, r)
 	})
 
-	// PUT /todos/{id}
-	// Update a task as completed/uncompleted
 	mux.HandleFunc("PUT /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.UpdateTaskHandler(w, r)
 	})
 
-	// DELETE /todos/{id}
-	// Delete a task
 	mux.HandleFunc("DELETE /todos/{id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.DeleteTaskHandler(w, r)
 	})

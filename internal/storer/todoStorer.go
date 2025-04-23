@@ -1,7 +1,5 @@
 package storer
 
-// responsible for storing and retrieving tasks to/from todos.json
-
 import (
 	"encoding/json"
 	"fmt"
@@ -10,10 +8,6 @@ import (
 	"leo.com/m/internal/models"
 )
 
-const todosFile = "./internal/data/todos.json"
-
-// saves tasks to todos.json
-// converts slice to JSON
 func SaveTodos(todosFile string, tasks []models.Task) {
 
 	b, err := json.Marshal(tasks)
@@ -22,7 +16,6 @@ func SaveTodos(todosFile string, tasks []models.Task) {
 		return
 	}
 
-	// write to file
 	err = os.WriteFile(todosFile, b, 0644)
 	if err != nil {
 		fmt.Printf("Failed to write tasks to file: %v\n", err)
@@ -31,11 +24,8 @@ func SaveTodos(todosFile string, tasks []models.Task) {
 
 }
 
-// loads tasks from todos.json
-// returns a slice of tasks
 func LoadTodos(todosFile string) []models.Task {
 
-	// read the file
 	file, err := os.ReadFile(todosFile)
 	if err != nil {
 		fmt.Printf("Failed to read file: %v\n", err)
@@ -44,7 +34,6 @@ func LoadTodos(todosFile string) []models.Task {
 
 	var tasks []models.Task
 	if len(file) > 0 {
-		// second arg is where the data is stored
 		err = json.Unmarshal(file, &tasks)
 		if err != nil {
 			fmt.Printf("Failed to unmarshal JSON: %v\n", err)

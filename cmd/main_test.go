@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,8 +9,6 @@ import (
 	"leo.com/m/internal/handlers"
 	"leo.com/m/internal/storer"
 )
-
-// go test ./cmd
 
 const todosFile = "../internal/data/todos.json"
 
@@ -42,7 +39,6 @@ func TestHelloHandler(t *testing.T) {
 	}
 }
 
-// Test get tasks when no tasks are available
 func TestGetTasks(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/todos", nil)
@@ -58,7 +54,7 @@ func TestGetTasks(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	if len(tasks) == 0 { // Empty todo list
+	if len(tasks) == 0 {
 		if rr.Code != http.StatusBadRequest {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -92,7 +88,7 @@ func TestGetSpecificTask(t *testing.T) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 
-	if len(tasks) == 0 { // Empty todo list
+	if len(tasks) == 0 {
 		if rr.Code != http.StatusBadRequest {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -101,7 +97,7 @@ func TestGetSpecificTask(t *testing.T) {
 		if !strings.Contains(rr.Body.String(), expected) {
 			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
 		}
-	} else { // Non-empty todo list
+	} else {
 		if rr.Code != http.StatusOK {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -126,7 +122,7 @@ func TestUpdateTask(t *testing.T) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 
-	if len(tasks) == 0 { // Empty todo list
+	if len(tasks) == 0 {
 		if rr.Code != http.StatusBadRequest {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -135,7 +131,7 @@ func TestUpdateTask(t *testing.T) {
 		if !strings.Contains(rr.Body.String(), expected) {
 			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
 		}
-	} else { // Non-empty todo list
+	} else {
 		if rr.Code != http.StatusOK {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -160,7 +156,7 @@ func TestDeleteTask(t *testing.T) {
 	rr := httptest.NewRecorder()
 	mux.ServeHTTP(rr, req)
 
-	if len(tasks) == 0 { // Empty todo list
+	if len(tasks) == 0 {
 		if rr.Code != http.StatusBadRequest {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
@@ -169,7 +165,7 @@ func TestDeleteTask(t *testing.T) {
 		if !strings.Contains(rr.Body.String(), expected) {
 			t.Errorf("\nUnexpected response body.\nGot: \n%v\n\nExpected: \n%v", rr.Body.String(), expected)
 		}
-	} else { // Non-empty todo list
+	} else {
 		if rr.Code != http.StatusOK {
 			t.Errorf("Got unexpected status %v", rr.Code)
 		}
